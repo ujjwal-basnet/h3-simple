@@ -3,3 +3,6 @@ memory-observation.json
 environment.json
 model-download.json
 *-memory.json
+hybrid-download.json
+hybrid-download.log
+hybrid-lora-check.log

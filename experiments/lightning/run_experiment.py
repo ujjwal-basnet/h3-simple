@@ -1,4 +1,4 @@
-"""Measured NF4 + disk-offload H3 experiment. No ComfyUI or huge BF16 download."""
+"""Standalone H3 hybrid INT8 or legacy NF4 experiment with disk offload."""
 import argparse
 import json
 import os
@@ -24,6 +24,7 @@ def run():
     parser.add_argument("--frames", type=int, default=39)
     parser.add_argument("--seed", type=int, default=8143)
     parser.add_argument("--attention-fp16", action="store_true")
+    parser.add_argument("--checkpoint", choices=["hybrid", "nf4"], default="hybrid")
     args = parser.parse_args()
     if args.frames < 22 or args.frames > 345 or args.frames % 17 != 5:
         parser.error("frames must be 17n+5, between 22 and 345")
@@ -33,7 +34,8 @@ def run():
     report_path = output/(name+".json")
     report = dict(status="started", mode=args.mode, dtype=args.dtype,
                   vram_limit_gib=args.vram_limit, torch=torch.__version__,
-                  gpu=torch.cuda.get_device_name(0), backend="DiffSynth-Studio NF4 disk offload",
+                  gpu=torch.cuda.get_device_name(0), backend="DiffSynth-Studio disk offload",
+                  checkpoint=args.checkpoint,
                   selflift=False, diffsynth_commit="974cfa37f27ac55eba3b6d10efa21f876900572d")
     started = time.time()
     def stage(value):
@@ -55,9 +57,19 @@ def run():
         stage("load_models")
         names=["minimax-h3-fl2va-nf4.safetensors","minimax-h3-text-encoder-nf4.safetensors",
                "video_vae_nf4.safetensors","audio_vae_nf4.safetensors"]
+        paths=[ROOT/"models/nf4"/name for name in names]
+        if args.checkpoint == "hybrid":
+            from hybrid_checkpoint import PATH, REPO, REVISION, SHA256
+            receipt=json.loads((ROOT/"hybrid-download.json").read_text())
+            if receipt.get("sha256") != SHA256 or receipt.get("status") != "verified":
+                raise ValueError("Run hybrid_checkpoint.py to verify the hybrid weights first")
+            paths[0]=PATH
+            report.update(checkpoint_repo=REPO, checkpoint_revision=REVISION,
+                          checkpoint_sha256=SHA256)
         pipe=MiniMaxH3Pipeline.from_pretrained(torch_dtype=dtype,device="cuda",
-            model_configs=[ModelConfig(path=str(ROOT/"models/nf4"/name),**offload,
-                computation_dtype=dtype if "fl2va" in name else torch.float32) for name in names],
+            model_configs=[ModelConfig(path=str(path),**offload,
+                computation_dtype=dtype if index == 0 else torch.float32)
+                for index,path in enumerate(paths)],
             processor_config=ModelConfig(path=str(ROOT/"models/h3/FL2VA/processor")),
             vram_limit=args.vram_limit)
         raw_video_decode=pipe.video_vae.decode_video
@@ -73,6 +85,9 @@ def run():
         turbo_file="minimax_h3_fl2v_turbo_8step_v1.0_768p_bf16.safetensors" if args.mode=="selflift-quality" else "minimax_h3_fl2v_turbo_4step_v1.0_768p_bf16.safetensors"
         if args.mode!="smoke":
             stage("load_turbo")
+            if args.checkpoint == "hybrid":
+                from hybrid_lora import HybridTurboLoader
+                pipe.lora_loader=HybridTurboLoader
             pipe.load_lora(pipe.dit,ModelConfig(path=str(ROOT/"models/turbo"/turbo_file)))
             report.update(turbo_file=turbo_file)
         width,height,frames,steps=(320,192,22,2) if args.mode=="smoke" else (640,384,39,4)

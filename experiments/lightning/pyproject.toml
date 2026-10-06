@@ -9,6 +9,7 @@ dependencies = [
   "diffsynth==2.1.8",
   "transformers==4.57.6",
   "bitsandbytes==0.50.2",
+  "comfy-kitchen",
   "huggingface-hub==0.36.2",
   "soundfile",
   "av",

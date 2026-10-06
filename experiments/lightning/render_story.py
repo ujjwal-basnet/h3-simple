@@ -19,7 +19,7 @@ def run():
     check()
     started=time.time()
     report={"status":"started","selflift":True,"correction":"paper_eq8_adaptive",
-            "turbo_revision":REVISION,"turbo_file":TURBO,"scenes":[]}
+            "checkpoint":"hybrid", "turbo_revision":REVISION,"turbo_file":TURBO,"scenes":[]}
     receipt=ROOT/"story-job.json"
     def stage(name):
         report.update(stage=name,elapsed_seconds=time.time()-started)
@@ -35,6 +35,7 @@ def run():
             stage(f"generate_scene_{scene['scene']}")
             before=set(output.glob("selflift-quality-*.json"))
             command=[sys.executable,str(ROOT/"monitor_run.py"),"--mode","selflift-quality",
+                     "--checkpoint","hybrid",
                      "--dtype","float32","--attention-fp16","--frames","124","--vram-limit","10",
                      "--seed",str(scene["seed"]),"--prompt-file",str(ROOT/"prompts"/scene["prompt_file"])]
             subprocess.run(command,check=True)
