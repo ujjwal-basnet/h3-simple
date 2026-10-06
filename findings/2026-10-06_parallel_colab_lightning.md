@@ -59,3 +59,10 @@ Antigravity suggested the shared NF4 VAE, small decoder tiles, and disk staging 
 Moving all models into FP32 host RAM would exceed the Studio's approximately 15 GiB host memory. Query/key rescaling can preserve attention algebra only for finite inputs; it cannot recover values that have already overflowed upstream. Replacing the NF4 VAE is a reasonable controlled comparison, not an established fix. No untested attention or all-RAM staging patch was applied.
 
 Raw research/audit files are preserved locally under `/home/ujjwal/h3_research/colab`, `/home/ujjwal/h3_research/vae-diagnostic`, and `/home/ujjwal/h3_research/agy-h3-audit-2026-10-06.txt`. Colab research outputs are under `/content/h3-research-20261006`; Lightning diagnostics are under `output/vae-diagnostic` in the experiment folder.
+
+
+## First long hybrid SelfLift export: rejected
+
+The 124-frame, 800×480 scene exported successfully in **1417.36 seconds (23.62 minutes)**. Denoising took 19 minutes 43 seconds. Export success and finite tensors did not establish image quality: the inspected middle frame was predominantly colored noise, with no readable guardian. The remaining two scenes were stopped before generation to avoid repeating the failure. The failed clip is preserved locally as `experiments/lightning/results/storm-guardian-scene-1-hybrid-selflift.mp4`; it is not presented as a usable sample.
+
+A short 39-frame hybrid Turbo control using the same guardian prompt and seed was launched without SelfLift. This changes both duration and sampling recipe, so it is a diagnostic control, not a strict one-variable comparison. The earlier clean teapot trial already establishes that this checkpoint/decoder can produce readable output for some prompts. SelfLift on H3 remains unvalidated; finite-value checks alone are insufficient.
