@@ -17,7 +17,7 @@ class VideoSettings(BaseModel):
     steps: int = Field(default=8, ge=2)
     transition_step: int = Field(default=6, ge=1)
     lowres_scale: float = Field(default=0.5, gt=0, lt=1)
-    rho: float = Field(default=0.6, gt=0, le=1)
+    rho: float = Field(default=0.4, gt=0, le=1)
     turbo_strength: float = Field(default=1, ge=0, le=2)
     export_width: int | None = Field(default=None, gt=0, multiple_of=2)
     export_height: int | None = Field(default=None, gt=0, multiple_of=2)

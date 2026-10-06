@@ -12,4 +12,6 @@ The two 39-frame clips last 1.625 seconds at 24 fps and include stereo audio. Fu
 
 The smoke output is soft and under-denoised. Turbo gives a clearer result. SelfLift completed the paired VAE/latent lift, rebuilt the high-resolution packed layout and resumed sampling while preserving the audio trajectory; it is an experimental adaptation of SelfLift-zero, not a validated quality improvement. Its extra VAE pass made this run about 6% slower than Turbo. The different starting canvas changes the initial video noise, so this is not a controlled quality comparison.
 
+**Legacy correction:** the SelfLift sample in this table used full replacement at selected locations rather than Eq. 8's adaptive weights. The code has since been corrected after a full paper review. These files are retained as the original measured experiment; see [review notes](../SELF_LIFT_REVIEW.md).
+
 The 10 GiB backend budget is not a hard device-memory cap. These results are encouraging for lower-memory use, but do not verify operation on a physical 12 GB GPU or native 1080p generation. The original Diffusers loader and the older Comfy-backed samples are separate implementations.

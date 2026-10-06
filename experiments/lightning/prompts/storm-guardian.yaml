@@ -1,0 +1,50 @@
+subject_definitions:
+  Subject_1: >-
+    An adult female storm guardian with warm olive skin, amber eyes and a single
+    long black braid. Dark teal lamellar armor has bronze-gold engraving;
+    an indigo silk cape catches the wind. Her bronze spear has a cyan crystal tip.
+  Subject_2: >-
+    A ruined floating temple above an endless storm-cloud ocean. Cracked black
+    basalt tiles, bronze pillars and ancient circular runes define the courtyard.
+  Subject_3: >-
+    High-end 3D CG cinematic fantasy with Xianxia-inspired art direction,
+    physically based bronze armor and silk, realistic skin shading,
+    volumetric clouds and cyan-blue magical lightning.
+
+summary: >-
+  A 15-second fantasy sequence: a storm guardian confronts awakened stone
+  sentinels, deflects their advance with her lightning spear, and activates an
+  ancient protective dome around a floating temple. No dialogue or subtitles.
+
+retention_analysis:
+  Subject_1: Identity, single braid, teal armor, indigo cape and cyan spear are consistency targets for every shot.
+  Subject_2: Preserve the temple layout, storm clouds and cool lighting across shots.
+  Subject_3: Preserve realistic materials and readable motion; avoid excessive motion blur.
+
+detailed_description:
+  Shot_1_00_00_to_00_02_5: >-
+    Low-angle medium full-body view. Wind moves the guardian's braid and cape.
+    A slow forward camera move reveals her steady stance on cracked basalt.
+  Shot_2_00_02_5_to_00_05: >-
+    She raises the spear as cyan arcs gather around its crystal tip.
+    In the courtyard beyond her, two carved stone sentinels awaken.
+  Shot_3_00_05_to_00_07_5: >-
+    A three-quarter tracking shot follows one decisive step and a clean
+    horizontal spear sweep, generating a sharply defined cyan energy ribbon.
+  Shot_4_00_07_5_to_00_10: >-
+    The energy ribbon strikes stone shields. Chips and luminous sparks scatter.
+    The guardian pivots into a stable defensive stance, her cape following naturally.
+  Shot_5_00_10_to_00_12_5: >-
+    Frontal medium view. She plants the spear inside an ancient circular rune.
+    Symbols illuminate in sequence and a blue-white light column rises into the clouds.
+  Shot_6_00_12_5_to_00_15: >-
+    The camera pulls back to reveal a protective dome around the temple.
+    The guardian holds her ground and watches a distant silhouette in the clouds.
+
+overall_soundscape: >-
+  Wind and distant thunder, a subtle electric hum, sharp spear whooshes,
+  crystalline impacts, falling stone and a resonant magical chime.
+non_diegetic_music: None
+production_note: >-
+  This is the intended storyboard, not an assertion of verified shot timing or
+  identity preservation. The local render uses three generated five-second scenes.

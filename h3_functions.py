@@ -107,25 +107,31 @@ def apply_lora(pipe, source=TURBO_ID, filename=TURBO_FILE, strength=1.0):
     return pipe
 
 
-def artifact_correct(direct, pixel_anchor, rho=0.6):
-    """Correct the top-rho latent locations by paired-lift disagreement (weight 1)."""
+def artifact_correct(direct, pixel_anchor, rho=0.4, wmin=0.5, wmax=1.0):
+    """SelfLift-zero Eqs. 7–9: adaptive weights over selected artifact risks."""
     import torch
     if not 0 <= rho <= 1:
         raise ValueError("rho must be in [0, 1].")
     if direct.shape != pixel_anchor.shape:
         raise ValueError("The two lifts must have identical shapes.")
+    if not 0 <= wmin <= wmax <= 1:
+        raise ValueError("Correction weights must satisfy 0 <= wmin <= wmax <= 1.")
     if rho == 0:
         return direct
-    if rho == 1:
-        return pixel_anchor
     delta = pixel_anchor.float() - direct.float()
-    risk = delta.abs().mean(dim=1)
+    risk = delta.abs().mean(dim=1, keepdim=True)
     threshold = torch.quantile(risk.flatten(1), 1-rho, dim=1)
     threshold = threshold.reshape((-1,) + (1,) * (risk.ndim-1))
-    return direct.float() + (risk >= threshold).unsqueeze(1) * delta
+    mask = risk >= threshold
+    axes = tuple(range(1, risk.ndim))
+    minimum = risk.masked_fill(~mask, float("inf")).amin(dim=axes, keepdim=True)
+    maximum = risk.masked_fill(~mask, float("-inf")).amax(dim=axes, keepdim=True)
+    normalized = ((risk-minimum)/(maximum-minimum+1e-8)).clamp(0, 1)
+    weights = mask * (wmin+(wmax-wmin)*normalized)
+    return direct.float() + weights * delta
 
 
-def selflift_transition(clean_low, pixel_anchor_fn, target_hw, sigma_resume, noise, rho=0.6):
+def selflift_transition(clean_low, pixel_anchor_fn, target_hw, sigma_resume, noise, rho=0.4):
     """SelfLift-zero: paired clean lifts → artifact correction → re-noising.
 
     pixel_anchor_fn decodes, resizes and re-encodes in the same VAE latent space.

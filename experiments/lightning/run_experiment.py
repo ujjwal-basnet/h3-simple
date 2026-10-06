@@ -17,10 +17,15 @@ def run():
     from diffsynth.utils.data.audio_video import write_video_audio
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["smoke", "turbo", "selflift"], default="smoke")
+    parser.add_argument("--mode", choices=["smoke", "turbo", "selflift", "selflift-quality"], default="smoke")
     parser.add_argument("--dtype", choices=["float32", "float16", "bfloat16"], default="float32")
     parser.add_argument("--vram-limit", type=float, default=10)
+    parser.add_argument("--prompt-file", type=Path)
+    parser.add_argument("--frames", type=int, default=39)
+    parser.add_argument("--seed", type=int, default=8143)
     args = parser.parse_args()
+    if args.frames < 22 or args.frames > 345 or args.frames % 17 != 5:
+        parser.error("frames must be 17n+5, between 22 and 345")
     name = f"{args.mode}-{args.dtype}-{time.time_ns()}"
     output = ROOT/"output"
     output.mkdir(exist_ok=True)
@@ -41,30 +46,43 @@ def run():
         offload = dict(offload_dtype="disk",offload_device="disk",
                        onload_dtype="disk",onload_device="disk",
                        preparing_dtype="disk",preparing_device="disk",
-                       computation_dtype=dtype,computation_device="cuda")
+                       computation_device="cuda")
         stage("load_models")
         names=["minimax-h3-fl2va-nf4.safetensors","minimax-h3-text-encoder-nf4.safetensors",
                "video_vae_nf4.safetensors","audio_vae_nf4.safetensors"]
         pipe=MiniMaxH3Pipeline.from_pretrained(torch_dtype=dtype,device="cuda",
-            model_configs=[ModelConfig(path=str(ROOT/"models/nf4"/name),**offload) for name in names],
+            model_configs=[ModelConfig(path=str(ROOT/"models/nf4"/name),**offload,
+                computation_dtype=torch.float32 if "text-encoder" in name else dtype) for name in names],
             processor_config=ModelConfig(path=str(ROOT/"models/h3/FL2VA/processor")),
             vram_limit=args.vram_limit)
-        if args.mode in ("turbo", "selflift"):
+        turbo_file="minimax_h3_fl2v_turbo_8step_v1.0_768p_bf16.safetensors" if args.mode=="selflift-quality" else "minimax_h3_fl2v_turbo_4step_v1.0_768p_bf16.safetensors"
+        if args.mode!="smoke":
             stage("load_turbo")
-            pipe.load_lora(pipe.dit,ModelConfig(path=str(ROOT/"models/turbo/minimax_h3_fl2v_turbo_4step_v1.0_768p_bf16.safetensors")))
+            pipe.load_lora(pipe.dit,ModelConfig(path=str(ROOT/"models/turbo"/turbo_file)))
+            report.update(turbo_file=turbo_file)
         width,height,frames,steps=(320,192,22,2) if args.mode=="smoke" else (640,384,39,4)
-        if args.mode=="selflift":
+        transition=2
+        prompt="A ceramic teapot pours warm tea into a cup beside a rainy window. One continuous close shot, natural motion, soft rain ambience, no speech, no text."
+        if args.mode=="selflift-quality":
+            width,height,frames,steps,transition=800,480,39,8,6
+            prompt="A cinematic close shot of a crystal-clear forest stream flowing over dark moss-covered rocks. Crisp wet stone textures, delicate green fern leaves and soft morning sunlight. A locked steady camera shows continuous gentle water motion. Photorealistic natural colors. Quiet flowing water ambience, no speech, no music, no text."
+        if args.mode in ("selflift", "selflift-quality"):
             from selflift import attach_selflift
-            attach_selflift(pipe, height=height, width=width)
-            report.update(selflift=True, transition_step=2, rho=0.6,
+            attach_selflift(pipe, height=height, width=width, transition_step=transition)
+            report.update(selflift=True, transition_step=transition, rho=0.4,
+                          correction="adaptive_selected_region_eq8", wmin=0.5, wmax=1.0,
                           target_width=width, target_height=height)
-            width,height=320,192
+            width,height=(640,384) if args.mode=="selflift-quality" else (320,192)
+        frames=22 if args.mode=="smoke" else args.frames
+        if args.prompt_file is not None:
+            prompt=args.prompt_file.read_text().strip()
         report.update(width=width,height=height,frames=frames,steps=steps,
-                      turbo=args.mode!="smoke",quality_test=args.mode!="smoke")
+                      turbo=args.mode!="smoke",quality_test=args.mode!="smoke",prompt=prompt,
+                      seed=args.seed,text_encoder_computation_dtype="float32")
         stage("generate")
-        video,audio=pipe(prompt="A ceramic teapot pours warm tea into a cup beside a rainy window. One continuous close shot, natural motion, soft rain ambience, no speech, no text.",
+        video,audio=pipe(prompt=prompt,
                          width=width,height=height,num_frames=frames,num_inference_steps=steps,
-                         seed=8143,flow_shift=6.0 if args.mode!="smoke" else 12.0,
+                         seed=args.seed,flow_shift=6.0 if args.mode!="smoke" else 12.0,
                          cfg_scale=1,tiled=True,tile_size=128,tile_overlap=32)
         if not torch.isfinite(torch.as_tensor(audio)).all():
             raise ValueError("Generated audio contains non-finite samples")
