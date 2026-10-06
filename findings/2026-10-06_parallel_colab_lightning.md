@@ -46,6 +46,8 @@ Saving generated latents enables subsequent decoder tests without repeating expe
 
 Both used zero denoising steps. These are silent decoder comparisons, not new diffusion generation or audio-generation tests. Torch-allocated memory is not total device usage. The whole-frame result does not establish memory requirements for the longer 800×480 story; that job keeps the tested 256-pixel default.
 
+Visual inspection of the cached 640-pixel whole-frame decode showed more grid and triangular artifacts than the 256-pixel generated-video export. Larger tiles are therefore not an automatic quality improvement. The story retains 256-pixel tiles based on the inspected real-video result.
+
 The three-scene hybrid eight-step Turbo + corrected SelfLift story job is running automatically on Lightning. First lower-resolution evaluations took approximately 103 seconds each. Scene export and high-resolution timings remain to be measured. The story assembler now resolves the FFmpeg binary from `imageio_ffmpeg` instead of assuming a system executable is on PATH.
 
 The first hybrid FP32 baseline exported in 391.93 seconds but retained visible grid artifacts. Full-model FP16 was separately tried on the hybrid checkpoint and stopped on non-finite attention values. It is not a validated speed optimization.
