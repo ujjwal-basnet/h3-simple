@@ -90,11 +90,14 @@ def run():
         turbo_file="minimax_h3_fl2v_turbo_8step_v1.0_768p_bf16.safetensors" if args.mode in ("turbo-quality", "selflift-quality") else "minimax_h3_fl2v_turbo_4step_v1.0_768p_bf16.safetensors"
         if args.mode!="smoke":
             stage("load_turbo")
+            from hybrid_lora import turbo_metadata
+            turbo_path=ROOT/"models/turbo"/turbo_file
+            metadata=turbo_metadata(turbo_path)
             if args.checkpoint == "hybrid":
                 from hybrid_lora import HybridTurboLoader
                 pipe.lora_loader=HybridTurboLoader
-            pipe.load_lora(pipe.dit,ModelConfig(path=str(ROOT/"models/turbo"/turbo_file)))
-            report.update(turbo_file=turbo_file)
+            pipe.load_lora(pipe.dit,ModelConfig(path=str(turbo_path)),alpha=metadata["scale"])
+            report.update(turbo_file=turbo_file,turbo_metadata=metadata)
         width,height,frames,steps=(320,192,22,2) if args.mode=="smoke" else (640,384,39,4)
         transition=2
         if args.mode=="turbo-quality":

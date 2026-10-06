@@ -68,3 +68,14 @@ The 124-frame, 800×480 scene exported successfully in **1417.36 seconds (23.62 
 A short 39-frame hybrid Turbo control using the same guardian prompt and seed was launched without SelfLift. This changes both duration and sampling recipe, so it is a diagnostic control, not a strict one-variable comparison. The earlier clean teapot trial already establishes that this checkpoint/decoder can produce readable output for some prompts. SelfLift on H3 remains unvalidated; finite-value checks alone are insufficient.
 
 The four-step guardian control exported 39 frames at 640×384 in **367.93 seconds**. Its inspected middle frame is readable, showing the guardian, cyan weapon, temple and sentinels. The downloaded 1.625-second H.264/AAC clip passes full FFmpeg decoding. A matched eight-step Turbo control is running before attributing the failure specifically to the SelfLift transition.
+
+
+## Eight-step adapter metadata bug
+
+The matched eight-step control also exported mostly noise without SelfLift. This rules out SelfLift as the sole explanation for the earlier failure. The queued redundant lift comparison was stopped during setup.
+
+Inspection of the actual pinned Safetensors headers found **rank 128 in both adapters, alpha 128 in the four-step adapter, and alpha 8 in the eight-step adapter**. The pinned DiffSynth loader reads alpha tensor keys but does not apply Safetensors metadata alpha. Our wrapper previously passed its default scale 1, making the eight-step update **16× too strong**. The four-step adapter's intended scale is 1, which explains why its control did not suffer the same loading error.
+
+The runner now reads original adapter metadata and rank before QKV fusion, applies `alpha / rank` through `pipe.load_lora`, and records both values and the scale in each receipt. The eight-step scale is **0.0625**; four-step remains **1.0**. A short 22-frame eight-step control is validating the corrected load before another long render. This is a concrete loading defect; successful visual recovery still requires inspection.
+
+The [official Turbo specifications](https://github.com/ModelTC/Minimax-H3-Turbo#1-model-specs) recommend eight evaluations with video shift 6 and audio shift 3 for the selected 768p eight-step adapter. Those schedule settings were already used. The tested 640×384 canvas is below its 1344×768 training resolution.

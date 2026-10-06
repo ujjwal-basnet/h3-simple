@@ -2,6 +2,20 @@
 from diffsynth.utils.lora.minimax_h3 import MiniMaxH3LoRALoader, MiniMaxH3LoRAConverter
 
 
+def turbo_metadata(path):
+    """Read original adapter ranks before QKV fusion changes their size."""
+    from safetensors import safe_open
+    with safe_open(str(path), framework="pt", device="cpu") as weights:
+        metadata = weights.metadata()
+        ranks = {weights.get_slice(key).get_shape()[0] for key in weights.keys()
+                 if key.endswith(".lora_A.default.weight")}
+    if len(ranks) != 1 or "alpha" not in metadata:
+        raise ValueError("Expected pinned Turbo adapter alpha and a uniform rank")
+    rank = ranks.pop()
+    alpha = float(metadata["alpha"])
+    return {"alpha": alpha, "rank": rank, "scale": alpha / rank}
+
+
 class HybridTurboLoader(MiniMaxH3LoRALoader):
     def convert_state_dict(self, state_dict, suffix=".weight"):
         if not self.is_lightx2v_format(state_dict):
