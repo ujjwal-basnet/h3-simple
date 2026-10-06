@@ -1,0 +1,44 @@
+[project]
+name = "my-h3-selflift"
+version = "0.1.0"
+description = "Simple Python entry point for H3, Turbo LoRA and experimental SelfLift"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "pydantic>=2.12,<3",
+  "torch==2.11.0",
+  "torchvision==0.26.0",
+  "torchaudio==2.11.0",
+  "diffusers",
+  "transformers==5.18.0",
+  "huggingface-hub==1.33.0",
+  "tokenizers==0.23.1",
+  "torchao==0.18.0",
+  "accelerate==1.15.0",
+  "peft==0.21.2",
+  "safetensors",
+  "sentencepiece",
+  "pillow",
+  "numpy",
+  "scipy",
+  "imageio",
+  "imageio-ffmpeg",
+  "av",
+  "ftfy",
+]
+
+[project.optional-dependencies]
+notebook = ["jupyterlab", "ipykernel"]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+diffusers = { git = "https://github.com/huggingface/diffusers.git", rev = "899c9f3fd0e64f3206781c00c71c28249eff9ca5" }
+torch = { index = "pytorch-cu130" }
+torchvision = { index = "pytorch-cu130" }
+torchaudio = { index = "pytorch-cu130" }
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true

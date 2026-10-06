@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "settings_validation": "defaults, eight invalid requests, file path and JSON serialization",
+  "uv_lock": "resolved and checked",
+  "python_toml_notebook_syntax": "passed",
+  "full_pretrained_render": "not run: existing runtime insufficient",
+  "langchain": "not required for rendering; optional for LLM planning"
+}
