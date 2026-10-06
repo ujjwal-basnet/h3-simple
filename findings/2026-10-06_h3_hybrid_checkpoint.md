@@ -32,9 +32,9 @@ The diffusion checkpoint is changed. `hybrid_lora.py` also adapts the LightX2V a
 
 ## Validation and limits
 
-Header inspection and registry compatibility are verified. The full file was downloaded on Lightning and its SHA-256 matched the published value. No hybrid video quality, runtime, RAM, or VRAM result is established by this note. Do not reuse NF4 measurements as hybrid measurements. The visible grid artifacts' root cause remains unresolved; checkpoint quantization, decoding, and other pipeline differences require controlled comparison.
+Header inspection and registry compatibility are verified. The full file was downloaded on Lightning and its SHA-256 matched the published value. Subsequent controlled decoder trials and a Turbo metadata fix produced readable hybrid clips, including a completed 15-second, 800×480 SelfLift film. See [completed measurements and previews](2026-10-06_parallel_colab_lightning.md). Do not reuse NF4 measurements as hybrid measurements. No matched checkpoint comparison establishes that this hybrid is universally best.
 
-The targeted two-head adapter check passed: Q, K, and V updates occupy the expected contiguous output rows after conversion. Lightning subsequently loaded the exact hybrid file, patched 208 adapter tensors, and reached the generation stage for a 640×384, 39-frame, four-step baseline. This establishes loading and adapter attachment; a completed and visually inspected render is still required.
+The targeted two-head adapter check passed: Q, K, and V updates occupy the expected contiguous output rows after conversion. Lightning loaded the exact hybrid file and patched 208 adapter tensors. The wrapper also now honors the original adapter metadata alpha/rank: 1.0 for the four-step adapter and 0.0625 for the eight-step adapter. Omitting the latter scale caused the earlier eight-step noise failure. Corrected Turbo controls and all three long SelfLift scenes passed full decoding and visual inspection of sampled frames.
 
 The previous NF4 story's first scene exported, but an inspected frame is dominated by grid-like noise. The remaining NF4 scenes were stopped after the user selected this checkpoint; the completed clip and measurements are preserved. Longer sampling did not by itself resolve the previous pipeline's quality problem.
 

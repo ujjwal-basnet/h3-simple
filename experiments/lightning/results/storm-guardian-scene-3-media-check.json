@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "video_file": "storm-guardian-scene-3.mp4",
+  "width": 800,
+  "height": 480,
+  "frames": 124,
+  "fps": "24/1",
+  "video_duration": 5.166667,
+  "container_duration": 5.175,
+  "audio_finite": true,
+  "audio_rms": 0.2897359314809086,
+  "audio_peak": 1.3316090106964111,
+  "full_decode": "passed"
+}

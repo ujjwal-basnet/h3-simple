@@ -1,5 +1,26 @@
 # Parallel Colab research and Lightning experiments — 2026-10-06
 
+## Completed film
+
+[Download the original storm-guardian film](../experiments/lightning/results/storm-guardian-15s.mp4). It contains **360 frames at 800×480 and 24 fps: exactly 15.0 seconds of video**. The AAC container duration is 15.022 seconds due to audio timing. Full-file decoding passes, decoded audio is finite and non-silent, and sampled frames across all three scenes are readable. Character identity and armor details can vary between separately generated scenes; perfect anatomy and prompt adherence are not established.
+
+The selected b25–49 hybrid INT8 H3 checkpoint uses the eight-step LightX2V 768p Turbo adapter at its correct metadata scale **8/128 = 0.0625**. Each 124-frame scene starts at 640×384, lifts to 800×480 before evaluation seven, and uses experimental SelfLift-zero with rho 0.4 and adaptive correction weights 0.5–1.0. FP32 model/VAE arithmetic, guarded FP16 attention, disk offloading and 256-pixel VAE tiles were used. No ComfyUI runtime was used.
+
+| Measurement | Completed film job |
+| --- | ---: |
+| Whole job, including setup, teardown and assembly | 4410.27 seconds = **73 minutes 30 seconds** |
+| Scene 1 / 2 / 3 worker runtime | 1417.08 / 1416.44 / 1417.77 seconds |
+| Maximum process-RAM high-water mark | **5.57 GiB** |
+| Maximum sampled device memory | **14.54 GiB** |
+| Maximum Torch-allocated GPU memory | **10.20 GiB** |
+| Maximum recorded Torch-reserved GPU memory | **14.40 GiB** |
+
+Reserved-memory reporting was added after scene 1 started, so it is present for scenes 2 and 3. Device sampling can miss brief peaks. These measurements do not validate a physical 12 GB GPU or native 1080p. There is no matched native 800×480 baseline establishing a SelfLift speed or quality advantage. Render workers have exited; the Studio itself was not reset or stopped.
+
+The key fix was an omitted adapter metadata alpha, which made the earlier eight-step adapter update 16× too strong. Both corrected Turbo-only and corrected SelfLift controls restored readable output before the long job was rerun. The individual scene receipts, memory measurements, final job receipt and media checks are under `experiments/lightning/results/`.
+
+![One sampled frame per second across the completed film](assets/2026-10-06_storm-guardian-film.jpg)
+
 The previous Colab session had expired. A new CPU research session, `h3-research-20261006`, was created; no runtime was reset. Lightning remains the T4 inference machine. Antigravity CLI supplied a read-only code audit while Colab examined pinned source and Lightning ran controlled decoder experiments.
 
 ## Colab source analysis

@@ -1,0 +1,31 @@
+{
+  "status": "success",
+  "selflift": true,
+  "correction": "paper_eq8_adaptive",
+  "checkpoint": "hybrid",
+  "turbo_revision": "3ec17a324ced54151364f24f8b5fb6bf7e26414f",
+  "turbo_file": "minimax_h3_fl2v_turbo_8step_v1.0_768p_bf16.safetensors",
+  "scenes": [
+    {
+      "scene": 1,
+      "receipt": "selflift-quality-float32-1791302915329182342.json",
+      "video_file": "selflift-quality-float32-1791302915329182342.mp4",
+      "memory_file": "selflift-quality-float32-1791302915329182342-memory.json"
+    },
+    {
+      "scene": 2,
+      "receipt": "selflift-quality-float32-1791304381972040511.json",
+      "video_file": "selflift-quality-float32-1791304381972040511.mp4",
+      "memory_file": "selflift-quality-float32-1791304381972040511-memory.json"
+    },
+    {
+      "scene": 3,
+      "receipt": "selflift-quality-float32-1791305846842251572.json",
+      "video_file": "selflift-quality-float32-1791305846842251572.mp4",
+      "memory_file": "selflift-quality-float32-1791305846842251572-memory.json"
+    }
+  ],
+  "stage": "complete",
+  "elapsed_seconds": 4410.270114660263,
+  "video_file": "storm-guardian-15s.mp4"
+}

@@ -36,3 +36,10 @@ These text-to-video controls use the selected hybrid checkpoint and original gua
 The clips differ in frame count and adapter, so their runtime comparison does not isolate step count. Earlier unscaled eight-step trials produced mostly noise; the loader now applies alpha/rank from the adapter metadata. A corrected SelfLift trial is being validated separately. These controls do not establish 15-second continuity, 1080p, or operation on a physical 12 GB GPU.
 
 [Corrected SelfLift validation](storm-guardian-selflift-scaled.mp4): 22 frames, 800×480, eight evaluations with transition before step seven, runtime 648.83 seconds. The inspected middle frame is readable, and full decoding passes. This short test does not establish long-video continuity or superiority over a native 800×480 baseline. Its receipt includes transition statistics and the applied adapter scale.
+
+
+## Completed 15-second SelfLift film
+
+[Storm guardian — final film](storm-guardian-15s.mp4): 800×480, 360 frames, 24 fps, 15.0 seconds of video, generated audio. Three independent 124-frame scenes were joined and trimmed. Each uses the selected hybrid INT8 checkpoint, correctly scaled eight-step Turbo adapter and experimental SelfLift-zero. Total job runtime: 73 minutes 30 seconds on the T4. Maximum process RAM: 5.57 GiB; maximum sampled device memory: 14.54 GiB. Full decoding and finite, non-silent audio checks pass; all three scenes are readable in sampled frames. Exact identity and anatomy are not guaranteed.
+
+See [final media check](storm-guardian-15s-media-check.json), [job receipt](storm-guardian-story-report.json), individual scene receipts and [dated findings](../../../findings/2026-10-06_parallel_colab_lightning.md). No matched native high-resolution comparison establishes SelfLift acceleration or improved quality. The earlier noisy eight-step outputs used incorrect adapter scaling and were rejected.

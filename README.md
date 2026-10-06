@@ -1,6 +1,6 @@
 # Simple H3 + Turbo + SelfLift
 
-**For the low-RAM Lightning experiment, start with [experiments/lightning](experiments/lightning/README.md).** It uses DiffSynth-Studio, pre-quantized NF4 weights and disk offloading, independently of the original Diffusers loader below. Standalone Turbo and experimental SelfLift both exported 640×384 videos with audio on a T4: about 5.11 GiB peak process RAM and 9.41 GiB sampled device memory. Turbo took 427 seconds; SelfLift took 453 seconds. These short tests do not verify 1080p support or operation on a physical 12 GB GPU. [Videos and measurements](experiments/lightning/results/README.md).
+**For the tested Lightning backend, start with [experiments/lightning](experiments/lightning/README.md).** The selected hybrid INT8 H3 checkpoint, correctly scaled eight-step Turbo adapter and experimental SelfLift-zero produced an original [15-second storm-guardian film](experiments/lightning/results/storm-guardian-15s.mp4) without a ComfyUI runtime: 800×480, 24 fps, three native scenes with generated audio. The complete job took 73 minutes 30 seconds on a Tesla T4, with 5.57 GiB peak process RAM and 14.54 GiB sampled device memory. This does not validate a physical 12 GB GPU or native 1080p. See [findings](findings/2026-10-06_parallel_colab_lightning.md) and [samples](experiments/lightning/results/README.md). The original Diffusers loader below has separate, substantially higher host-memory requirements.
 
 Install uv once if needed:
 
@@ -26,7 +26,7 @@ uv run --extra notebook jupyter lab simple.ipynb
 
 Select this project's Python kernel. In Colab, put the project at `/content/h3_simple`, install uv, then run `!uv --directory /content/h3_simple sync --locked` followed by `!uv --directory /content/h3_simple run main.py`. Use the subprocess commands to keep its packages separate from Colab's existing kernel.
 
-The readable entry point is short; `h3_functions.py` contains the original Diffusers H3 loading and experimental SelfLift implementation. No ComfyUI dependency. Small real-H3 tensor/LoRA tests passed for that helper, but full pretrained rendering through that original loader has not been verified. The separate Lightning NF4 backend has completed the smoke render described above.
+The readable entry point is short; `h3_functions.py` contains the original Diffusers H3 loading and experimental SelfLift implementation. No ComfyUI dependency. Small real-H3 tensor/LoRA tests passed for that helper, but full pretrained rendering through that original loader has not been verified. The separate Lightning backend has completed the hybrid three-scene film described above.
 
 **Hardware:** approximately 75 GB host RAM for the int8 offload recipe (128 GiB recommended), native BF16 GPU, and at least 140 GiB free model-cache storage. The current T4/13 GB runtime cannot run this loader. Capacity checks stop before downloading pretrained models; installing Python packages still downloads large PyTorch wheels. Simplifying the entry point does not reduce model memory requirements.
 

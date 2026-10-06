@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "video_file": "storm-guardian-15s.mp4",
+  "width": 800,
+  "height": 480,
+  "frames": 360,
+  "fps": "24/1",
+  "video_duration": 15.0,
+  "container_duration": 15.022,
+  "audio_finite": true,
+  "audio_rms": 0.26037507684481576,
+  "audio_peak": 1.3269271850585938,
+  "full_decode": "passed"
+}
