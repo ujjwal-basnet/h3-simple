@@ -143,6 +143,7 @@ def run():
         write_video_audio(video=video,audio=audio,output_path=str(path),fps=24,audio_sample_rate=32000)
         report.update(status="success",video_file=path.name,
             peak_allocated_vram_gib=torch.cuda.max_memory_allocated()/2**30,
+            peak_reserved_vram_gib=torch.cuda.max_memory_reserved()/2**30,
             peak_resident_ram_gib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/2**20)
         stage("complete")
     except BaseException as error:

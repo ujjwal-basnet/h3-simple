@@ -83,3 +83,10 @@ The [official Turbo specifications](https://github.com/ModelTC/Minimax-H3-Turbo#
 The corrected eight-step control exported 22 frames at 640×384 in **572.92 seconds**. The inspected middle frame is readable again, with guardian, weapon, temple and sentinels. The clip passes full FFmpeg decoding. Colab separately verified that applying original-rank scaling before/after QKV fusion preserves the adapter matrix update (maximum absolute error 2.83e-7). This supports the metadata bug diagnosis; a short corrected SelfLift render is now validating the transition itself.
 
 The corrected SelfLift validation exported **22 frames at 800×480 in 648.83 seconds**, after six 640×384 steps, a paired VAE/latent lift and two high-resolution evaluations. Its inspected middle frame is readable and the full file passes FFmpeg decoding. Transition latent standard deviations are approximately 1, with maximum absolute values below 7. This validates a short H3 SelfLift-zero execution, not an improvement over native high-resolution sampling. The original three-scene, 124-frame-per-scene film is now rerunning with the corrected 0.0625 adapter scale.
+
+
+## Antigravity follow-up after the alpha fix
+
+A second completed read-only performance review is saved at `/home/ujjwal/h3_research/agy-performance-after-alpha-fix.txt`. It proposed expandable CUDA allocator segments, explicit cache release, eager FP32 LoRA conversion, and deleting attention inputs after casting. These are proposals, not measured improvements.
+
+The pinned pipeline already loads LoRA weights with `torch_dtype=self.torch_dtype`, which is FP32 in the working recipe, and stores the scaled hotloaded tensors. Therefore eager FP32 conversion is already present; it is not a new speed fix. Merely deleting local attention references may not free storage retained by the caller. Allocator experiments need separate process launches and measured allocated/reserved/device memory; no allocator change was applied to the active film. New success receipts additionally record peak Torch-reserved GPU memory to support that comparison.
