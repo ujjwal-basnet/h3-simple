@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "video_file": "storm-guardian-scene-1.mp4",
+  "width": 800,
+  "height": 480,
+  "frames": 124,
+  "fps": "24/1",
+  "duration": 5.175,
+  "audio_finite": true,
+  "audio_rms": 0.19464041188916104,
+  "audio_peak": 1.104124665260315,
+  "visual_inspection": "Readable five sampled frames; motion and cyan energy visible; no claim of perfect anatomy"
+}

@@ -1,0 +1,69 @@
+{
+  "status": "success",
+  "mode": "selflift-quality",
+  "dtype": "float32",
+  "vram_limit_gib": 10.0,
+  "torch": "2.8.0+cu128",
+  "gpu": "Tesla T4",
+  "backend": "DiffSynth-Studio disk offload",
+  "checkpoint": "hybrid",
+  "selflift": true,
+  "diffsynth_commit": "974cfa37f27ac55eba3b6d10efa21f876900572d",
+  "attention_dtype": "float16",
+  "stage": "complete",
+  "elapsed_seconds": 1417.081324338913,
+  "checkpoint_repo": "smhfacct/Minimax-H3-fl2va-ref2va-hybrid-models",
+  "checkpoint_revision": "a36feb17fbd1f20ff4bdd509ccd07e2b7b585a38",
+  "checkpoint_sha256": "a629cfea8d89a071b140c6e1935dc9a23e72de6badc18975a2bb9e6d1423d76d",
+  "turbo_file": "minimax_h3_fl2v_turbo_8step_v1.0_768p_bf16.safetensors",
+  "turbo_metadata": {
+    "alpha": 8.0,
+    "rank": 128,
+    "scale": 0.0625
+  },
+  "transition_step": 6,
+  "rho": 0.4,
+  "correction": "adaptive_selected_region_eq8",
+  "wmin": 0.5,
+  "wmax": 1.0,
+  "target_width": 800,
+  "target_height": 480,
+  "width": 640,
+  "height": 384,
+  "frames": 124,
+  "steps": 8,
+  "vae_tile_size": 256,
+  "save_latents": false,
+  "turbo": true,
+  "quality_test": true,
+  "prompt": "An adult female storm guardian with warm olive skin, sharp amber eyes and long jet-black hair in a single high braid. She wears dark teal lamellar armor with engraved bronze-gold edges and an indigo silk cape. She carries a bronze spear with a glowing cyan crystal tip. High-end 3D CG cinematic fantasy with a Xianxia-inspired art direction, physically based bronze armor and woven silk, realistic skin shading, cool volumetric cloud light and bright cyan lightning. No dialogue, subtitles, logos or music. A five-second establishing sequence at a ruined floating temple above an endless sea of storm clouds. Start with a low-angle medium full-body view of the guardian standing on cracked black basalt tiles, hair and cape moving naturally in the wind. The camera slowly tracks forward as she raises her spear. Thin cyan electric arcs gather around its crystal tip. At the far end of the courtyard, two enormous carved stone sentinels awaken, their eyes glowing blue. Maintain clear anatomy, readable silhouette and one continuous deliberate motion. Natural wind, distant thunder and a subtle electric hum.",
+  "seed": 9175,
+  "text_encoder_computation_dtype": "float32",
+  "video_vae_computation_dtype": "float32",
+  "audio_vae_computation_dtype": "float32",
+  "selflift_diagnostics": {
+    "clean": {
+      "mean": 0.07834845781326294,
+      "std": 1.0005242824554443,
+      "max_abs": 4.971702575683594
+    },
+    "direct": {
+      "mean": 0.07933221757411957,
+      "std": 1.001190423965454,
+      "max_abs": 4.971702575683594
+    },
+    "anchor": {
+      "mean": -0.05618485435843468,
+      "std": 0.9992355704307556,
+      "max_abs": 5.7056965827941895
+    },
+    "corrected": {
+      "mean": 0.0420580618083477,
+      "std": 0.9537138938903809,
+      "max_abs": 5.193230628967285
+    }
+  },
+  "video_file": "selflift-quality-float32-1791302915329182342.mp4",
+  "peak_allocated_vram_gib": 10.195755958557129,
+  "peak_resident_ram_gib": 5.566398620605469
+}
