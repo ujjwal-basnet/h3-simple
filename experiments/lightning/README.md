@@ -21,6 +21,8 @@ SelfLift uses 39 frames and four Turbo steps, starting at 320×192 and lifting t
 
 The corrected `selflift-quality` preset uses the matching eight-step adapter, adaptive correction weights from 0.5 to 1.0, rho=0.4 and a 640×384 → 800×480 transition before step seven. `render_story.py` downloads that adapter and generates three 124-frame text-to-video scenes, then joins and trims them into a 15-second film. Its storyboard is [prompts/storm-guardian.yaml](prompts/storm-guardian.yaml). Watch `story.log` and `story-job.json` for progress; see [paper review](SELF_LIFT_REVIEW.md).
 
+Turbo adapters now apply the Safetensors metadata alpha divided by the original adapter rank. The four-step adapter uses 128/128 = 1; the eight-step adapter uses 8/128 = 0.0625. Earlier eight-step trials omitted this scaling and produced noise. A corrected short `turbo-quality` control without SelfLift exported a readable guardian; full SelfLift validation is separate. Each new receipt records the applied scale.
+
 The longer preset uses FP32 model/latent/VAE arithmetic with the `--attention-fp16` path for H3's attention operation. It casts normalized queries and keys to FP16 and scales values before casting, restoring that scale in FP32. This reduces attention memory while keeping potentially large model activations outside FP16. A full FP16 denoiser trial produced non-finite predictions on the tested T4 and was stopped; use the story renderer's FP32 settings. This longer preset is being tested separately from the earlier small-sample measurements.
 
 Setup in a new environment with uv:
