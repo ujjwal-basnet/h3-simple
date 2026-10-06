@@ -1,0 +1,70 @@
+{
+  "status": "success",
+  "mode": "selflift-quality",
+  "dtype": "float32",
+  "vram_limit_gib": 10.0,
+  "torch": "2.8.0+cu128",
+  "gpu": "Tesla T4",
+  "backend": "DiffSynth-Studio disk offload",
+  "checkpoint": "hybrid",
+  "selflift": true,
+  "diffsynth_commit": "974cfa37f27ac55eba3b6d10efa21f876900572d",
+  "attention_dtype": "float16",
+  "stage": "complete",
+  "elapsed_seconds": 1416.4387533664703,
+  "checkpoint_repo": "smhfacct/Minimax-H3-fl2va-ref2va-hybrid-models",
+  "checkpoint_revision": "a36feb17fbd1f20ff4bdd509ccd07e2b7b585a38",
+  "checkpoint_sha256": "a629cfea8d89a071b140c6e1935dc9a23e72de6badc18975a2bb9e6d1423d76d",
+  "turbo_file": "minimax_h3_fl2v_turbo_8step_v1.0_768p_bf16.safetensors",
+  "turbo_metadata": {
+    "alpha": 8.0,
+    "rank": 128,
+    "scale": 0.0625
+  },
+  "transition_step": 6,
+  "rho": 0.4,
+  "correction": "adaptive_selected_region_eq8",
+  "wmin": 0.5,
+  "wmax": 1.0,
+  "target_width": 800,
+  "target_height": 480,
+  "width": 640,
+  "height": 384,
+  "frames": 124,
+  "steps": 8,
+  "vae_tile_size": 256,
+  "save_latents": false,
+  "turbo": true,
+  "quality_test": true,
+  "prompt": "An adult female storm guardian with warm olive skin, sharp amber eyes and long jet-black hair in a single high braid. She wears dark teal lamellar armor with engraved bronze-gold edges and an indigo silk cape. She carries a bronze spear with a glowing cyan crystal tip. High-end 3D CG cinematic fantasy with a Xianxia-inspired art direction, physically based bronze armor and woven silk, realistic skin shading, cool volumetric cloud light and bright cyan lightning. No dialogue, subtitles, logos or music. A five-second action sequence in the same ruined floating temple above storm clouds, with cracked basalt tiles and engraved bronze pillars. In a three-quarter medium-wide tracking shot, the guardian takes one decisive forward step and sweeps her spear in a clean horizontal arc. A broad cyan energy ribbon strikes the stone sentinels shields, sending stone chips and glowing sparks outward. She pivots into a stable defensive stance as her cape follows the motion. Keep the action readable, preserve her face and armor, avoid chaotic spinning or motion smear. One smooth camera move. Sharp spear whoosh, crystalline energy impact, falling stone and deep distant thunder. No blood.",
+  "seed": 9176,
+  "text_encoder_computation_dtype": "float32",
+  "video_vae_computation_dtype": "float32",
+  "audio_vae_computation_dtype": "float32",
+  "selflift_diagnostics": {
+    "clean": {
+      "mean": -0.06849822402000427,
+      "std": 1.0204007625579834,
+      "max_abs": 5.691772937774658
+    },
+    "direct": {
+      "mean": -0.06611648201942444,
+      "std": 1.0209535360336304,
+      "max_abs": 5.691772937774658
+    },
+    "anchor": {
+      "mean": -0.15555299818515778,
+      "std": 1.0664758682250977,
+      "max_abs": 5.064281463623047
+    },
+    "corrected": {
+      "mean": -0.08753293007612228,
+      "std": 0.9883540272712708,
+      "max_abs": 5.691772937774658
+    }
+  },
+  "video_file": "selflift-quality-float32-1791304381972040511.mp4",
+  "peak_allocated_vram_gib": 10.196488380432129,
+  "peak_reserved_vram_gib": 14.400390625,
+  "peak_resident_ram_gib": 5.258049011230469
+}

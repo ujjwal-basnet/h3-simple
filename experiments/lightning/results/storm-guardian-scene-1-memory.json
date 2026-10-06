@@ -1,0 +1,8 @@
+{
+  "worker_pid": 106941,
+  "peak_worker_ram_gib": 5.387420654296875,
+  "peak_device_used_gib": 14.5400390625,
+  "minimum_available_ram_gib": 8.190006256103516,
+  "memory_guard_stopped": false,
+  "worker_exit_code": 0
+}

@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "video_file": "storm-guardian-scene-2.mp4",
+  "width": 800,
+  "height": 480,
+  "frames": 124,
+  "fps": "24/1",
+  "duration": 5.175,
+  "audio_finite": true,
+  "audio_rms": 0.2748835703078381,
+  "audio_peak": 1.2811514139175415,
+  "visual_inspection": "Readable five sampled frames; spear sweep, cyan effects and shield-bearing sentinels visible; no exact identity claim"
+}
