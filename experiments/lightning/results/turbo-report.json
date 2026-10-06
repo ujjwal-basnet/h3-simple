@@ -1,0 +1,31 @@
+{
+  "receipt": {
+    "status": "success",
+    "mode": "turbo",
+    "dtype": "float32",
+    "vram_limit_gib": 10.0,
+    "torch": "2.8.0+cu128",
+    "gpu": "Tesla T4",
+    "backend": "DiffSynth-Studio NF4 disk offload",
+    "selflift": false,
+    "diffsynth_commit": "974cfa37f27ac55eba3b6d10efa21f876900572d",
+    "stage": "complete",
+    "elapsed_seconds": 426.57002210617065,
+    "width": 640,
+    "height": 384,
+    "frames": 39,
+    "steps": 4,
+    "turbo": true,
+    "quality_test": true,
+    "video_file": "turbo-float32-1791289425833920837.mp4",
+    "peak_allocated_vram_gib": 8.037423610687256,
+    "peak_resident_ram_gib": 5.109809875488281
+  },
+  "memory": {
+    "worker_pid": 7731,
+    "peak_worker_ram_gib": 4.3627166748046875,
+    "peak_device_used_gib": 9.4111328125,
+    "minimum_available_ram_gib": 8.726821899414062,
+    "memory_guard_stopped": false
+  }
+}

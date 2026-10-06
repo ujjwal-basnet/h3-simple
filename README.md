@@ -1,5 +1,7 @@
 # Simple H3 + Turbo + SelfLift
 
+**For the low-RAM Lightning experiment, start with [experiments/lightning](experiments/lightning/README.md).** It uses DiffSynth-Studio, pre-quantized NF4 weights and disk offloading, independently of the original Diffusers loader below. Standalone Turbo and experimental SelfLift both exported 640×384 videos with audio on a T4: about 5.11 GiB peak process RAM and 9.41 GiB sampled device memory. Turbo took 427 seconds; SelfLift took 453 seconds. These short tests do not verify 1080p support or operation on a physical 12 GB GPU. [Videos and measurements](experiments/lightning/results/README.md).
+
 Install uv once if needed:
 
 ```bash
@@ -24,7 +26,7 @@ uv run --extra notebook jupyter lab simple.ipynb
 
 Select this project's Python kernel. In Colab, put the project at `/content/h3_simple`, install uv, then run `!uv --directory /content/h3_simple sync --locked` followed by `!uv --directory /content/h3_simple run main.py`. Use the subprocess commands to keep its packages separate from Colab's existing kernel.
 
-The readable entry point is short; `h3_functions.py` contains the actual H3 loading and experimental SelfLift implementation. No ComfyUI dependency. Small real-H3 tensor/LoRA tests passed for the helper, but full pretrained standalone rendering has not been verified.
+The readable entry point is short; `h3_functions.py` contains the original Diffusers H3 loading and experimental SelfLift implementation. No ComfyUI dependency. Small real-H3 tensor/LoRA tests passed for that helper, but full pretrained rendering through that original loader has not been verified. The separate Lightning NF4 backend has completed the smoke render described above.
 
 **Hardware:** approximately 75 GB host RAM for the int8 offload recipe (128 GiB recommended), native BF16 GPU, and at least 140 GiB free model-cache storage. The current T4/13 GB runtime cannot run this loader. Capacity checks stop before downloading pretrained models; installing Python packages still downloads large PyTorch wheels. Simplifying the entry point does not reduce model memory requirements.
 
@@ -38,6 +40,6 @@ Three real video samples, previews and measurements are in [samples/](samples/RE
 
 ## Can it run on a 12 GB GPU?
 
-**Potentially at a small canvas, with substantial CPU RAM and offloading; this project has not been validated on a 12 GB GPU.** The [official Diffusers H3 memory guide](https://huggingface.co/docs/diffusers/main/en/api/pipelines/minimax_h3#memory) describes 12–16 GB GPUs with int8 weights, offloaded video VAE and a small 960×544 canvas, but around 75 GB of host RAM. This project's loader requires at least 80 GiB total host RAM, native BF16 GPU support and sufficient model-cache disk space; 128 GiB host RAM is recommended. SelfLift's transition can add memory pressure beyond an ordinary Turbo-only render.
+**This project has not been validated on a physical 12 GB GPU.** The Lightning NF4 experiment is testing a lower host-RAM path on a 15 GiB T4. The [official Diffusers H3 memory guide](https://huggingface.co/docs/diffusers/main/en/api/pipelines/minimax_h3#memory) describes a different recipe with 12–16 GB GPUs, int8 weights, offloaded video VAE and a small 960×544 canvas, but around 75 GB of host RAM. The original `main.py` loader requires at least 80 GiB total host RAM, native BF16 GPU support and sufficient model-cache disk space; 128 GiB host RAM is recommended. SelfLift's transition can add memory pressure beyond an ordinary Turbo-only render.
 
 The previous native 1080p sample used around 13.6 GiB of device memory on the T4, so it is not evidence that 1080p fits 12 GB. A 12 GB GPU plus a standard 13 GB RAM Colab runtime cannot use this standalone loader as written.

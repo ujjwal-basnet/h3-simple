@@ -17,7 +17,7 @@ def run():
     from diffsynth.utils.data.audio_video import write_video_audio
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["smoke", "turbo"], default="smoke")
+    parser.add_argument("--mode", choices=["smoke", "turbo", "selflift"], default="smoke")
     parser.add_argument("--dtype", choices=["float32", "float16", "bfloat16"], default="float32")
     parser.add_argument("--vram-limit", type=float, default=10)
     args = parser.parse_args()
@@ -49,17 +49,25 @@ def run():
             model_configs=[ModelConfig(path=str(ROOT/"models/nf4"/name),**offload) for name in names],
             processor_config=ModelConfig(path=str(ROOT/"models/h3/FL2VA/processor")),
             vram_limit=args.vram_limit)
-        if args.mode=="turbo":
+        if args.mode in ("turbo", "selflift"):
             stage("load_turbo")
             pipe.load_lora(pipe.dit,ModelConfig(path=str(ROOT/"models/turbo/minimax_h3_fl2v_turbo_4step_v1.0_768p_bf16.safetensors")))
         width,height,frames,steps=(320,192,22,2) if args.mode=="smoke" else (640,384,39,4)
+        if args.mode=="selflift":
+            from selflift import attach_selflift
+            attach_selflift(pipe, height=height, width=width)
+            report.update(selflift=True, transition_step=2, rho=0.6,
+                          target_width=width, target_height=height)
+            width,height=320,192
         report.update(width=width,height=height,frames=frames,steps=steps,
-                      turbo=args.mode=="turbo",quality_test=args.mode=="turbo")
+                      turbo=args.mode!="smoke",quality_test=args.mode!="smoke")
         stage("generate")
         video,audio=pipe(prompt="A ceramic teapot pours warm tea into a cup beside a rainy window. One continuous close shot, natural motion, soft rain ambience, no speech, no text.",
                          width=width,height=height,num_frames=frames,num_inference_steps=steps,
-                         seed=8143,flow_shift=6.0 if args.mode=="turbo" else 12.0,
+                         seed=8143,flow_shift=6.0 if args.mode!="smoke" else 12.0,
                          cfg_scale=1,tiled=True,tile_size=128,tile_overlap=32)
+        if not torch.isfinite(torch.as_tensor(audio)).all():
+            raise ValueError("Generated audio contains non-finite samples")
         stage("export")
         path=output/(name+".mp4")
         write_video_audio(video=video,audio=audio,output_path=str(path),fps=24,audio_sample_rate=32000)

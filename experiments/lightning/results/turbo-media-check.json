@@ -1,0 +1,25 @@
+{
+  "metadata": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 640,
+        "height": 384,
+        "nb_frames": "39"
+      },
+      {
+        "codec_name": "aac",
+        "sample_rate": "32000",
+        "channels": 2,
+        "nb_frames": "52"
+      }
+    ],
+    "format": {
+      "duration": "1.625000"
+    }
+  },
+  "decoded_audio_finite": true,
+  "decoded_audio_peak": 0.1455405056476593,
+  "decoded_audio_rms": 0.005044134508452104
+}
