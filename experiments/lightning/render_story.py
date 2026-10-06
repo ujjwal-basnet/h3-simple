@@ -35,7 +35,7 @@ def run():
             stage(f"generate_scene_{scene['scene']}")
             before=set(output.glob("selflift-quality-*.json"))
             command=[sys.executable,str(ROOT/"monitor_run.py"),"--mode","selflift-quality",
-                     "--dtype","float16","--frames","124","--vram-limit","10",
+                     "--dtype","float32","--attention-fp16","--frames","124","--vram-limit","10",
                      "--seed",str(scene["seed"]),"--prompt-file",str(ROOT/"prompts"/scene["prompt_file"])]
             subprocess.run(command,check=True)
             new=list(set(output.glob("selflift-quality-*.json"))-before)

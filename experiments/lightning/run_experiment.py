@@ -23,6 +23,7 @@ def run():
     parser.add_argument("--prompt-file", type=Path)
     parser.add_argument("--frames", type=int, default=39)
     parser.add_argument("--seed", type=int, default=8143)
+    parser.add_argument("--attention-fp16", action="store_true")
     args = parser.parse_args()
     if args.frames < 22 or args.frames > 345 or args.frames % 17 != 5:
         parser.error("frames must be 17n+5, between 22 and 345")
@@ -41,6 +42,10 @@ def run():
         print("STAGE", value, flush=True)
     try:
         dtype = getattr(torch,args.dtype)
+        if args.attention_fp16:
+            from safe_attention import enable_memory_efficient_attention
+            enable_memory_efficient_attention()
+        report.update(attention_dtype="float16" if args.attention_fp16 else args.dtype)
         # Full disk staging keeps host memory demand low. T4 computation is
         # explicitly configurable: native BF16 is unavailable on this GPU.
         offload = dict(offload_dtype="disk",offload_device="disk",
@@ -52,9 +57,19 @@ def run():
                "video_vae_nf4.safetensors","audio_vae_nf4.safetensors"]
         pipe=MiniMaxH3Pipeline.from_pretrained(torch_dtype=dtype,device="cuda",
             model_configs=[ModelConfig(path=str(ROOT/"models/nf4"/name),**offload,
-                computation_dtype=torch.float32 if "text-encoder" in name else dtype) for name in names],
+                computation_dtype=dtype if "fl2va" in name else torch.float32) for name in names],
             processor_config=ModelConfig(path=str(ROOT/"models/h3/FL2VA/processor")),
             vram_limit=args.vram_limit)
+        raw_video_decode=pipe.video_vae.decode_video
+        raw_audio_decode=pipe.audio_vae.decode_audio
+        def video_decode(latents, **kwargs):
+            kwargs["dtype"]=torch.float32
+            return raw_video_decode(latents.float(), **kwargs)
+        def audio_decode(latents, **kwargs):
+            kwargs["dtype"]=torch.float32
+            return raw_audio_decode(latents.float(), **kwargs)
+        pipe.video_vae.decode_video=video_decode
+        pipe.audio_vae.decode_audio=audio_decode
         turbo_file="minimax_h3_fl2v_turbo_8step_v1.0_768p_bf16.safetensors" if args.mode=="selflift-quality" else "minimax_h3_fl2v_turbo_4step_v1.0_768p_bf16.safetensors"
         if args.mode!="smoke":
             stage("load_turbo")
@@ -78,7 +93,8 @@ def run():
             prompt=args.prompt_file.read_text().strip()
         report.update(width=width,height=height,frames=frames,steps=steps,
                       turbo=args.mode!="smoke",quality_test=args.mode!="smoke",prompt=prompt,
-                      seed=args.seed,text_encoder_computation_dtype="float32")
+                      seed=args.seed,text_encoder_computation_dtype="float32",
+                      video_vae_computation_dtype="float32",audio_vae_computation_dtype="float32")
         stage("generate")
         video,audio=pipe(prompt=prompt,
                          width=width,height=height,num_frames=frames,num_inference_steps=steps,

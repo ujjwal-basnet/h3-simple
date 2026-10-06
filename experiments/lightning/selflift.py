@@ -28,15 +28,19 @@ def artifact_correct(direct, anchor, rho=0.4, wmin=0.5, wmax=1.0):
 
 def pixel_anchor(pipe, clean, height, width):
     pipe.load_models_to_device(["video_vae"])
-    pixels = pipe.video_vae.decode_video(clean, dtype=pipe.torch_dtype,
+    pixels = pipe.video_vae.decode_video(clean, dtype=torch.float32,
                                          tiled=True, tile_size=128, tile_overlap=32)
+    if not torch.isfinite(pixels).all():
+        raise ValueError("VAE decoded non-finite pixels during SelfLift")
     batch, channels, frames, _, _ = pixels.shape
     images = pixels.permute(0, 2, 1, 3, 4).reshape(batch*frames, channels, *pixels.shape[-2:])
     images = F.interpolate(images.float(), size=(height, width), mode="bicubic",
                            align_corners=False, antialias=True).clamp(0, 1)
     pixels = images.reshape(batch, frames, channels, height, width).permute(0, 2, 1, 3, 4)
-    anchor = pipe.video_vae.encode_video(pixels, dtype=pipe.torch_dtype,
+    anchor = pipe.video_vae.encode_video(pixels, dtype=torch.float32,
                                          tiled=True, tile_size=128, tile_overlap=32)
+    if not torch.isfinite(anchor).all():
+        raise ValueError("VAE encoded a non-finite SelfLift anchor")
     pipe.load_models_to_device(pipe.in_iteration_models)
     return anchor
 
@@ -69,6 +73,8 @@ def attach_selflift(pipe, height=384, width=640, transition_step=2, rho=0.4, see
         if state["step"] == transition_step:
             print("SELFLIFT paired VAE/latent lift", flush=True)
             clean = state["latents"].float() - state["sigma"] * state["prediction"].float()
+            if not torch.isfinite(clean).all():
+                raise ValueError("Denoiser clean estimate is non-finite before SelfLift")
             anchor = pixel_anchor(pipe, clean, height, width)
             direct = F.interpolate(clean, size=(clean.shape[2], height//16, width//16), mode="nearest")
             if direct.shape != anchor.shape:
@@ -85,6 +91,8 @@ def attach_selflift(pipe, height=384, width=640, transition_step=2, rho=0.4, see
             print("SELFLIFT resume", tuple(shared["video_latents"].shape), "sigma", sigma, flush=True)
         latents = shared["video_latents"].detach().clone()
         prediction = original(model_fn, cfg_scale, shared, positive, negative, **kwargs)
+        if not all(bool(torch.isfinite(value).all()) for value in prediction):
+            raise ValueError(f"Denoiser prediction is non-finite at step {state['step']}")
         state.update(step=state["step"]+1, latents=latents,
                      sigma=sigma, prediction=prediction[0].detach())
         return prediction

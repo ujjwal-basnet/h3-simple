@@ -18,7 +18,9 @@ Run one experiment at a time. The smoke run uses 320×192, 22 frames and two ste
 
 SelfLift uses 39 frames and four Turbo steps, starting at 320×192 and lifting to 640×384 before the third step. This experimental adapter supports text-to-video with CFG=1; it is not an image-conditioning implementation or a quality guarantee. See [measured results](results/README.md) for completed runs.
 
-The corrected `selflift-quality` preset uses the matching eight-step adapter, adaptive correction weights from 0.5 to 1.0, rho=0.4 and a 640×384 → 800×480 transition before step seven. `render_story.py` downloads that adapter and generates three 124-frame text-to-video scenes with FP16 rendering and FP32 text-encoder computation, then joins and trims them into a 15-second film. Its storyboard is [prompts/storm-guardian.yaml](prompts/storm-guardian.yaml). Watch `story.log` and `story-job.json` for progress. This longer FP16 preset is being tested separately from the earlier FP32 measurements; see [paper review](SELF_LIFT_REVIEW.md).
+The corrected `selflift-quality` preset uses the matching eight-step adapter, adaptive correction weights from 0.5 to 1.0, rho=0.4 and a 640×384 → 800×480 transition before step seven. `render_story.py` downloads that adapter and generates three 124-frame text-to-video scenes, then joins and trims them into a 15-second film. Its storyboard is [prompts/storm-guardian.yaml](prompts/storm-guardian.yaml). Watch `story.log` and `story-job.json` for progress; see [paper review](SELF_LIFT_REVIEW.md).
+
+The longer preset uses FP32 model/latent/VAE arithmetic with the `--attention-fp16` path for H3's attention operation. It casts normalized queries and keys to FP16 and scales values before casting, restoring that scale in FP32. This reduces attention memory while keeping potentially large model activations outside FP16. A full FP16 denoiser trial produced non-finite predictions on the tested T4 and was stopped; use the story renderer's FP32 settings. This longer preset is being tested separately from the earlier small-sample measurements.
 
 Setup in a new environment with uv:
 
