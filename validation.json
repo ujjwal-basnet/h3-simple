@@ -4,5 +4,7 @@
   "uv_lock": "resolved and checked",
   "python_toml_notebook_syntax": "passed",
   "full_pretrained_render": "not run: existing runtime insufficient",
-  "langchain": "not required for rendering; optional for LLM planning"
+  "langchain": "not required for rendering; optional for LLM planning",
+  "reference_samples": "three earlier Comfy-backend MP4s probed and fully decoded; all have audio",
+  "12gb_gpu_support": "not tested"
 }

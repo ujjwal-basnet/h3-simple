@@ -1,0 +1,59 @@
+[
+  {
+    "name": "ceramic-studio",
+    "file": "ceramic-studio.mp4",
+    "width": 640,
+    "height": 384,
+    "frames": 39,
+    "fps": "24/1",
+    "duration_seconds": 1.625,
+    "audio_present": true,
+    "render_seconds": 578.8723627439995,
+    "peak_system_ram_gib": 6.579505920410156,
+    "backend": "Earlier direct Comfy PyTorch H3 + Turbo + SelfLift-zero backend",
+    "gpu": "Tesla T4 (15360 MiB reported by nvidia-smi)",
+    "standalone_project_output": false,
+    "source_commits": {
+      "ComfyUI": "dddb41aad74eb9fdfe948f1bdf6fffd784fa079d",
+      "SelfLift": "835c3cf7919410f71f414688f049c6ca497789d0"
+    }
+  },
+  {
+    "name": "rainy-tea",
+    "file": "rainy-tea.mp4",
+    "width": 640,
+    "height": 384,
+    "frames": 39,
+    "fps": "24/1",
+    "duration_seconds": 1.625,
+    "audio_present": true,
+    "render_seconds": 579.3598088439994,
+    "peak_system_ram_gib": 6.578800201416016,
+    "backend": "Earlier direct Comfy PyTorch H3 + Turbo + SelfLift-zero backend",
+    "gpu": "Tesla T4 (15360 MiB reported by nvidia-smi)",
+    "standalone_project_output": false,
+    "source_commits": {
+      "ComfyUI": "dddb41aad74eb9fdfe948f1bdf6fffd784fa079d",
+      "SelfLift": "835c3cf7919410f71f414688f049c6ca497789d0"
+    }
+  },
+  {
+    "name": "portrait-1080p",
+    "file": "portrait-1080p.mp4",
+    "width": 1080,
+    "height": 1920,
+    "frames": 56,
+    "fps": "24/1",
+    "duration_seconds": 2.333333,
+    "audio_present": true,
+    "render_seconds": 2933.9613147359996,
+    "peak_system_ram_gib": 6.933063507080078,
+    "backend": "Earlier direct Comfy PyTorch H3 + Turbo + SelfLift-zero backend",
+    "gpu": "Tesla T4 (15360 MiB reported by nvidia-smi)",
+    "standalone_project_output": false,
+    "source_commits": {
+      "ComfyUI": "dddb41aad74eb9fdfe948f1bdf6fffd784fa079d",
+      "SelfLift": "835c3cf7919410f71f414688f049c6ca497789d0"
+    }
+  }
+]
