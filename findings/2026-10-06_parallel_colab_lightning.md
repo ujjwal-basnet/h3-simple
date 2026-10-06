@@ -37,7 +37,16 @@ The runner now accepts `--vae-tile-size` and `--save-latents`. A hybrid INT8, FP
 
 The inspected generated-video frame no longer shows the earlier large grid artifacts. All other generation settings remained the same except added finite-value checks and latent saving. The 256-pixel setting is now the default; 128 remains available for comparison. SelfLift's pixel-anchor encoder and decoder receive the selected tile size too, but the full longer SelfLift sequence still needs validation with this setting.
 
-Saving generated latents enables subsequent decoder tests without repeating expensive diffusion sampling. `decode_cached.py` completed a 384-pixel decode of the saved real-video latents: **27.65 seconds decoding**, **39.64 seconds including setup/export**, with zero denoising steps. Its output is a silent decoder comparison, not a new diffusion generation or an audio-generation test. A whole-frame 640-pixel decode is the next controlled comparison on Lightning.
+Saving generated latents enables subsequent decoder tests without repeating expensive diffusion sampling. `decode_cached.py` completed two tests on the saved real-video latents:
+
+| Tile size | Decode time | Including setup/export | Peak Torch-allocated GPU memory |
+| --- | ---: | ---: | ---: |
+| 384 | 27.65 seconds | 39.64 seconds | 0.87 GiB |
+| 640, whole frame | 25.85 seconds | 37.56 seconds | 1.24 GiB |
+
+Both used zero denoising steps. These are silent decoder comparisons, not new diffusion generation or audio-generation tests. Torch-allocated memory is not total device usage. The whole-frame result does not establish memory requirements for the longer 800×480 story; that job keeps the tested 256-pixel default.
+
+The three-scene hybrid eight-step Turbo + corrected SelfLift story job is running automatically on Lightning. First lower-resolution evaluations took approximately 103 seconds each. Scene export and high-resolution timings remain to be measured. The story assembler now resolves the FFmpeg binary from `imageio_ffmpeg` instead of assuming a system executable is on PATH.
 
 The first hybrid FP32 baseline exported in 391.93 seconds but retained visible grid artifacts. Full-model FP16 was separately tried on the hybrid checkpoint and stopped on non-finite attention values. It is not a validated speed optimization.
 

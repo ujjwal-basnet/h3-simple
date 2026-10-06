@@ -16,6 +16,7 @@ TURBO="minimax_h3_fl2v_turbo_8step_v1.0_768p_bf16.safetensors"
 def run():
     from check_correction import check
     from huggingface_hub import hf_hub_download
+    from imageio_ffmpeg import get_ffmpeg_exe
     check()
     started=time.time()
     report={"status":"started","selflift":True,"correction":"paper_eq8_adaptive",
@@ -53,7 +54,7 @@ def run():
         listing=output/"storm-guardian-concat.txt"
         listing.write_text("".join("file '"+s["video_file"]+"'\n" for s in report["scenes"]))
         final=output/"storm-guardian-15s.mp4"
-        subprocess.run(["ffmpeg","-y","-v","error","-f","concat","-safe","0","-i",str(listing),
+        subprocess.run([get_ffmpeg_exe(),"-y","-v","error","-f","concat","-safe","0","-i",str(listing),
                         "-t","15","-c:v","libx264","-crf","18","-preset","medium",
                         "-c:a","aac","-b:a","192k","-movflags","+faststart",str(final)],check=True)
         report.update(status="success",video_file=final.name)
