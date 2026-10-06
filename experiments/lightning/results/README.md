@@ -15,3 +15,10 @@ The smoke output is soft and under-denoised. Turbo gives a clearer result. SelfL
 **Legacy correction:** the SelfLift sample in this table used full replacement at selected locations rather than Eq. 8's adaptive weights. The code has since been corrected after a full paper review. These files are retained as the original measured experiment; see [review notes](../SELF_LIFT_REVIEW.md).
 
 The 10 GiB backend budget is not a hard device-memory cap. These results are encouraging for lower-memory use, but do not verify operation on a physical 12 GB GPU or native 1080p generation. The original Diffusers loader and the older Comfy-backed samples are separate implementations.
+# Hybrid checkpoint and decoder improvement — 2026-10-06
+
+[Updated video](hybrid-tile256.mp4) uses the selected hybrid b25–49 INT8 checkpoint, LightX2V four-step Turbo, FP32 computation, guarded FP16 attention, and 256-pixel VAE tiles. Output: 640×384, 39 frames, 24 FPS, approximately 1.625 seconds. Runtime was 359.10 seconds and sampled device peak was 9.41 GiB. SelfLift is disabled for this baseline.
+
+The earlier hybrid trial with 128-pixel tiles took 391.93 seconds and showed grid artifacts. Inspected frames from this updated clip are much cleaner. Full-file FFmpeg decoding passed. This short simple-action clip does not establish quality or timing for a longer combat sequence.
+
+See [receipt](hybrid-tile256-report.json), [preview](hybrid-tile256-preview.png), and [dated parallel research findings](../../../findings/2026-10-06_parallel_colab_lightning.md). Earlier NF4 samples retain their original provenance below.

@@ -25,6 +25,8 @@ def run():
     parser.add_argument("--seed", type=int, default=8143)
     parser.add_argument("--attention-fp16", action="store_true")
     parser.add_argument("--checkpoint", choices=["hybrid", "nf4"], default="hybrid")
+    parser.add_argument("--vae-tile-size", type=int, choices=[128,256,384,640,800], default=256)
+    parser.add_argument("--save-latents", action="store_true")
     args = parser.parse_args()
     if args.frames < 22 or args.frames > 345 or args.frames % 17 != 5:
         parser.error("frames must be 17n+5, between 22 and 345")
@@ -76,6 +78,9 @@ def run():
         raw_audio_decode=pipe.audio_vae.decode_audio
         def video_decode(latents, **kwargs):
             kwargs["dtype"]=torch.float32
+            kwargs["tile_size"]=args.vae_tile_size
+            if args.save_latents:
+                torch.save(latents.detach().cpu(),output/(name+"-video-latents.pt"))
             return raw_video_decode(latents.float(), **kwargs)
         def audio_decode(latents, **kwargs):
             kwargs["dtype"]=torch.float32
@@ -98,15 +103,25 @@ def run():
             prompt="A cinematic close shot of a crystal-clear forest stream flowing over dark moss-covered rocks. Crisp wet stone textures, delicate green fern leaves and soft morning sunlight. A locked steady camera shows continuous gentle water motion. Photorealistic natural colors. Quiet flowing water ambience, no speech, no music, no text."
         if args.mode in ("selflift", "selflift-quality"):
             from selflift import attach_selflift
-            attach_selflift(pipe, height=height, width=width, transition_step=transition)
+            attach_selflift(pipe, height=height, width=width, transition_step=transition,
+                            vae_tile_size=args.vae_tile_size)
             report.update(selflift=True, transition_step=transition, rho=0.4,
                           correction="adaptive_selected_region_eq8", wmin=0.5, wmax=1.0,
                           target_width=width, target_height=height)
             width,height=(640,384) if args.mode=="selflift-quality" else (320,192)
+        else:
+            original_prediction=pipe.cfg_guided_model_fn
+            def checked_prediction(*call_args, **kwargs):
+                prediction=original_prediction(*call_args, **kwargs)
+                if not all(bool(torch.isfinite(value).all()) for value in prediction):
+                    raise ValueError("Denoiser produced non-finite values; precision trial stopped")
+                return prediction
+            pipe.cfg_guided_model_fn=checked_prediction
         frames=22 if args.mode=="smoke" else args.frames
         if args.prompt_file is not None:
             prompt=args.prompt_file.read_text().strip()
         report.update(width=width,height=height,frames=frames,steps=steps,
+                      vae_tile_size=args.vae_tile_size,save_latents=args.save_latents,
                       turbo=args.mode!="smoke",quality_test=args.mode!="smoke",prompt=prompt,
                       seed=args.seed,text_encoder_computation_dtype="float32",
                       video_vae_computation_dtype="float32",audio_vae_computation_dtype="float32")
@@ -114,7 +129,7 @@ def run():
         video,audio=pipe(prompt=prompt,
                          width=width,height=height,num_frames=frames,num_inference_steps=steps,
                          seed=args.seed,flow_shift=6.0 if args.mode!="smoke" else 12.0,
-                         cfg_scale=1,tiled=True,tile_size=128,tile_overlap=32)
+                         cfg_scale=1,tiled=True,tile_size=args.vae_tile_size,tile_overlap=32)
         if not torch.isfinite(torch.as_tensor(audio)).all():
             raise ValueError("Generated audio contains non-finite samples")
         stage("export")

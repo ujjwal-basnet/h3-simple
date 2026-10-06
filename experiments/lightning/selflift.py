@@ -26,10 +26,10 @@ def artifact_correct(direct, anchor, rho=0.4, wmin=0.5, wmax=1.0):
     return direct.float() + weights * delta
 
 
-def pixel_anchor(pipe, clean, height, width):
+def pixel_anchor(pipe, clean, height, width, tile_size=256):
     pipe.load_models_to_device(["video_vae"])
     pixels = pipe.video_vae.decode_video(clean, dtype=torch.float32,
-                                         tiled=True, tile_size=128, tile_overlap=32)
+                                         tiled=True, tile_size=tile_size, tile_overlap=32)
     if not torch.isfinite(pixels).all():
         raise ValueError("VAE decoded non-finite pixels during SelfLift")
     batch, channels, frames, _, _ = pixels.shape
@@ -38,14 +38,15 @@ def pixel_anchor(pipe, clean, height, width):
                            align_corners=False, antialias=True).clamp(0, 1)
     pixels = images.reshape(batch, frames, channels, height, width).permute(0, 2, 1, 3, 4)
     anchor = pipe.video_vae.encode_video(pixels, dtype=torch.float32,
-                                         tiled=True, tile_size=128, tile_overlap=32)
+                                         tiled=True, tile_size=tile_size, tile_overlap=32)
     if not torch.isfinite(anchor).all():
         raise ValueError("VAE encoded a non-finite SelfLift anchor")
     pipe.load_models_to_device(pipe.in_iteration_models)
     return anchor
 
 
-def attach_selflift(pipe, height=384, width=640, transition_step=2, rho=0.4, seed=9174):
+def attach_selflift(pipe, height=384, width=640, transition_step=2, rho=0.4, seed=9174,
+                    vae_tile_size=256):
     """Install a single-use lift before step 2, keeping the audio trajectory.
 
     Supports the unconditioned text-to-video experiment with CFG=1 only.
@@ -75,7 +76,7 @@ def attach_selflift(pipe, height=384, width=640, transition_step=2, rho=0.4, see
             clean = state["latents"].float() - state["sigma"] * state["prediction"].float()
             if not torch.isfinite(clean).all():
                 raise ValueError("Denoiser clean estimate is non-finite before SelfLift")
-            anchor = pixel_anchor(pipe, clean, height, width)
+            anchor = pixel_anchor(pipe, clean, height, width, tile_size=vae_tile_size)
             direct = F.interpolate(clean, size=(clean.shape[2], height//16, width//16), mode="nearest")
             if direct.shape != anchor.shape:
                 raise ValueError(f"Paired lift shapes differ: {direct.shape} vs {anchor.shape}")
