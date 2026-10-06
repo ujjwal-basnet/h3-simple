@@ -17,7 +17,7 @@ def run():
     from diffsynth.utils.data.audio_video import write_video_audio
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["smoke", "turbo", "selflift", "selflift-quality"], default="smoke")
+    parser.add_argument("--mode", choices=["smoke", "turbo", "turbo-quality", "selflift", "selflift-quality"], default="smoke")
     parser.add_argument("--dtype", choices=["float32", "float16", "bfloat16"], default="float32")
     parser.add_argument("--vram-limit", type=float, default=10)
     parser.add_argument("--prompt-file", type=Path)
@@ -87,7 +87,7 @@ def run():
             return raw_audio_decode(latents.float(), **kwargs)
         pipe.video_vae.decode_video=video_decode
         pipe.audio_vae.decode_audio=audio_decode
-        turbo_file="minimax_h3_fl2v_turbo_8step_v1.0_768p_bf16.safetensors" if args.mode=="selflift-quality" else "minimax_h3_fl2v_turbo_4step_v1.0_768p_bf16.safetensors"
+        turbo_file="minimax_h3_fl2v_turbo_8step_v1.0_768p_bf16.safetensors" if args.mode in ("turbo-quality", "selflift-quality") else "minimax_h3_fl2v_turbo_4step_v1.0_768p_bf16.safetensors"
         if args.mode!="smoke":
             stage("load_turbo")
             if args.checkpoint == "hybrid":
@@ -97,6 +97,8 @@ def run():
             report.update(turbo_file=turbo_file)
         width,height,frames,steps=(320,192,22,2) if args.mode=="smoke" else (640,384,39,4)
         transition=2
+        if args.mode=="turbo-quality":
+            steps=8
         prompt="A ceramic teapot pours warm tea into a cup beside a rainy window. One continuous close shot, natural motion, soft rain ambience, no speech, no text."
         if args.mode=="selflift-quality":
             width,height,frames,steps,transition=800,480,39,8,6
@@ -132,6 +134,7 @@ def run():
                          cfg_scale=1,tiled=True,tile_size=args.vae_tile_size,tile_overlap=32)
         if not torch.isfinite(torch.as_tensor(audio)).all():
             raise ValueError("Generated audio contains non-finite samples")
+        report["selflift_diagnostics"]=getattr(pipe,"selflift_diagnostics",None)
         stage("export")
         path=output/(name+".mp4")
         write_video_audio(video=video,audio=audio,output_path=str(path),fps=24,audio_sample_rate=32000)

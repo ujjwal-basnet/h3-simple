@@ -81,6 +81,14 @@ def attach_selflift(pipe, height=384, width=640, transition_step=2, rho=0.4, see
             if direct.shape != anchor.shape:
                 raise ValueError(f"Paired lift shapes differ: {direct.shape} vs {anchor.shape}")
             corrected = artifact_correct(direct, anchor, rho=rho)
+            pipe.selflift_diagnostics = {
+                name: {"mean": float(value.float().mean()),
+                       "std": float(value.float().std()),
+                       "max_abs": float(value.float().abs().max())}
+                for name, value in {"clean": clean, "direct": direct,
+                                    "anchor": anchor, "corrected": corrected}.items()
+            }
+            print("SELFLIFT diagnostics", pipe.selflift_diagnostics, flush=True)
             noise = torch.randn(corrected.shape, generator=generator, device=pipe.device, dtype=pipe.torch_dtype)
             shared["video_latents"] = ((1-sigma)*corrected + sigma*noise).to(pipe.torch_dtype)
             shared.update(height=height, width=width)
